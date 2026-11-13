@@ -3,7 +3,7 @@
   "name": "Deadline Guard ATLAS Capture",
   "version": "0.1.0",
   "description": "Captures ATLAS page state and submits normalized imports to Deadline Guard backend.",
-  "permissions": ["storage", "activeTab", "scripting"],
+  "permissions": ["storage", "activeTab", "scripting", "tabs", "alarms"],
   "host_permissions": [
     "http://127.0.0.1:54322/*",
     "https://*/*",

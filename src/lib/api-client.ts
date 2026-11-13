@@ -1,9 +1,15 @@
 import type { AtlasImportPayload, ExtensionConfigResponse } from "../types/api";
 
-const API_BASE = "http://127.0.0.1:54322";
+interface RequestOptions extends RequestInit {
+  baseUrl?: string;
+}
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`${API_BASE}${path}`, {
+function normalizeBaseUrl(baseUrl?: string) {
+  return (baseUrl || "http://127.0.0.1:54322").replace(/\/+$/, "");
+}
+
+async function request<T>(path: string, init?: RequestOptions): Promise<T> {
+  const response = await fetch(`${normalizeBaseUrl(init?.baseUrl)}${path}`, {
     headers: {
       "Content-Type": "application/json",
       ...(init?.headers ?? {})
@@ -21,12 +27,13 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const extensionApi = {
-  getConfig() {
-    return request<ExtensionConfigResponse>("/api/atlas/extension/config");
+  getConfig(baseUrl?: string) {
+    return request<ExtensionConfigResponse>("/api/atlas/extension/config", { baseUrl });
   },
-  submitImport(body: AtlasImportPayload, token?: string, idempotencyKey?: string) {
+  submitImport(body: AtlasImportPayload, token?: string, idempotencyKey?: string, baseUrl?: string) {
     return request("/api/atlas/extension/import", {
       method: "POST",
+      baseUrl,
       headers: {
         ...(token ? { "x-extension-token": token } : {}),
         ...(idempotencyKey ? { "x-idempotency-key": idempotencyKey } : {})
@@ -34,9 +41,10 @@ export const extensionApi = {
       body: JSON.stringify(body)
     });
   },
-  submitBatch(items: AtlasImportPayload[], token?: string, idempotencyKey?: string) {
+  submitBatch(items: AtlasImportPayload[], token?: string, idempotencyKey?: string, baseUrl?: string) {
     return request("/api/atlas/extension/import-batch", {
       method: "POST",
+      baseUrl,
       headers: {
         ...(token ? { "x-extension-token": token } : {}),
         ...(idempotencyKey ? { "x-idempotency-key": idempotencyKey } : {})

@@ -19,6 +19,31 @@ export interface ExtensionConfigResponse {
   auth_enabled?: boolean;
 }
 
+export interface AtlasImportResponse {
+  ok: boolean;
+  duplicate?: boolean;
+  import_id?: string | null;
+  message?: string | null;
+  [key: string]: unknown;
+}
+
+export interface RuntimeSubmitImportResponse {
+  ok: boolean;
+  response?: AtlasImportResponse;
+  usedBackendUrl?: string;
+  error?: string;
+  queued?: boolean;
+  queueSize?: number;
+}
+
+export interface QueueStatusResponse {
+  ok: boolean;
+  queueSize?: number;
+  oldestQueuedAt?: string | null;
+  lastError?: string | null;
+  stalledCount?: number;
+}
+
 export interface AtlasImportPayload {
   atlas_reference: string;
   grant_reference?: string | null;
@@ -44,4 +69,27 @@ export interface AtlasImportPayload {
     pathname?: string | null;
     host?: string | null;
   };
+}
+
+export interface QueuedAtlasImport {
+  id: string;
+  payload: AtlasImportPayload;
+  idempotencyKey?: string;
+  createdAt: string;
+  lastAttemptAt?: string;
+  retryCount: number;
+  lastError?: string;
+  stalled?: boolean;
+}
+
+export interface ImportHistoryEntry {
+  id: string;
+  status: "submitted" | "duplicate" | "queued" | "failed" | "dropped";
+  createdAt: string;
+  completedAt: string;
+  atlasReference?: string | null;
+  matterTitle?: string | null;
+  message: string;
+  backendUrl?: string | null;
+  retryCount?: number;
 }
